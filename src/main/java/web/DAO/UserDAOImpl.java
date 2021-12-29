@@ -6,72 +6,53 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import web.models.User;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.swing.text.html.parser.Entity;
 import java.util.ArrayList;
 import java.util.List;
 
 @Repository
 public class UserDAOImpl implements UserDAO {
-    private static int USER_COUNT;
-    private List<User> users;
-    {
-        users = new ArrayList<>();
-        users.add(new User(++USER_COUNT, "Rinat","@123Э",153451));
-        users.add(new User(++USER_COUNT, "Love","@123Э", 50445));
-        users.add(new User(++USER_COUNT, "Adelina","@123Э", 1451));
-        users.add(new User(++USER_COUNT, "Liliana","@123Э", 945));
-        users.add(new User(++USER_COUNT, "Archi","@123Э", 64));
 
-    }
-
-    @Override
-    public List<User> index() {
-        return users;
-    }
-
-    @Autowired
-    private SessionFactory sessionFactory;
-
-    public void setSessionFactory(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
-    }
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Override
     public void addUser(User user) {
-        Session session = this.sessionFactory.getCurrentSession();
-        session.persist(user);
-
+        entityManager.persist(user);
     }
 
     @Override
-    public void updateUser(User user) {
-        Session session = this.sessionFactory.getCurrentSession();
-        session.update(user);
+    public void updateUser(int id, User user) {
+        User userNew =  entityManager.getReference(User.class, id);
+        userNew.setName(user.getName());
+        userNew.setEmail(user.getEmail());
+        userNew.setSalary(user.getSalary());
     }
 
     @Override
     public void removeUser(int id) {
-        Session session = this.sessionFactory.getCurrentSession();
-        User user = (User) session.load(User.class, new Integer(id));
-
-        if (user != null) {
-            session.delete(user);
-        }
+        entityManager.remove(getUserID(id));
     }
 
     @Override
     public User getUserID(int id) {
-        Session session = this.sessionFactory.getCurrentSession();
-        User user = (User) session.load(User.class, new Integer(id));
-
-        return user;
+        return entityManager.find(User.class, id);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<User> listUsers() {
-        Session session = this.sessionFactory.getCurrentSession();
-        List<User> userList = session.createQuery("from users").list();
-
-        return userList;
+    public List<User> index() {
+        return entityManager.createQuery("SELECT user FROM User user", User.class).getResultList();
     }
+
+//    @Override
+//    public void createUsersTable() {
+//        entityManager.createNativeQuery("create table if not exists users " +
+//                "(id int primary key AUTO_INCREMENT, " +
+//                "name varchar(30), " +
+//                "email varchar(50), " +
+//                "salary int").executeUpdate();
+//    }
 }
