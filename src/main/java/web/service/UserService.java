@@ -14,4 +14,5 @@ public interface UserService {
     public User getUserID(int id);
 
     public List<User> listUsers();
+    public List<User> index();
 }

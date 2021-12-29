@@ -19,6 +19,16 @@ public class User {
     @Column(name="salary")
     private int salary;
 
+    public User() {
+    }
+
+    public User(int id, String name, String email, int salary) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.salary = salary;
+    }
+
     public int getId() {
         return id;
     }
