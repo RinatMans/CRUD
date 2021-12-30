@@ -11,55 +11,61 @@ import web.models.User;
 @Controller
 public class UserController {
 
-
     private UserService userService;
 
     @Autowired
-    public UserController(UserService userService){
-        this.userService=userService;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
-    @GetMapping("/")
+
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String index(Model model) {
+        model.addAttribute("user", new User());
         model.addAttribute("users", userService.index());
+        return "index";
+    }
+
+    @GetMapping("/{id}")
+    public String show(@PathVariable("id") int id, Model model) {
+        model.addAttribute("user", userService.getUserID(id));
+        return "show";
+    }
+
+    //@PostMapping("/add")
+    @RequestMapping(value = "/add", method = RequestMethod.POST)
+    public String create(@ModelAttribute("user") User user) {
+        if (user.getId() == 0) {
+            userService.addUser(user);
+        } else {
+            userService.updateUser(user.getId(), user);
+        }
+        return "add";
+    }
+
+    @GetMapping("/edit/{id}")
+    public String edit(@PathVariable("id") int id, Model model) {
+        model.addAttribute("user", userService.getUserID(id));
+        model.addAttribute("index", userService.index());
         return "users";
     }
 
-//    @GetMapping("/{id}")
-//    public String show(@PathVariable("id") int id, Model model) {
-//        model.addAttribute("user", userService.getUserID(id));
-//        return "show";
-//    }
-//
-//    @GetMapping("/new")
-//    public String newPerson(Model model){
-//        model.addAttribute("user", new User());
-//        return "new";
-//    }
-//
-//    @PostMapping("/")
-//    public String create(@ModelAttribute("user") User user){
-//        userService.addUser(user);
-//        return "redirect:/index";
-//    }
-//
-//    @GetMapping("/{id}/edit")
-//    public String edit(Model model, @PathVariable("id") int id) {
-//        model.addAttribute("user", userService.getUserID(id));
-//        return "edit";
-//    }
-//
-//    @PatchMapping("/{id}")
-//    public String update(@ModelAttribute("user") User user, @PathVariable("id") int id) {
-//        userService.updateUser(id, user);
-//        return "redirect:/index";
-//    }
-//
-//    @DeleteMapping("/{id}")
-//    public String delete(@PathVariable("id") int id) {
-//        userService.removeUser(id);
-//        return "redirect:/index";
-//    }
+    @PatchMapping("/{id}")
+    public String update(@ModelAttribute("user") User user, @PathVariable("id") int id) {
+        userService.updateUser(id, user);
+        return "redirect:/index";
+    }
+
+    @DeleteMapping("/remove/{id}")
+    public String delete(@PathVariable("id") int id) {
+        userService.removeUser(id);
+        return "redirect:/users";
+    }
+
+    @GetMapping("userdata/{id}")
+    public String userdata(@PathVariable("id") int id, Model model) {
+        model.addAttribute("user", userService.getUserID(id));
+        return "userdata";
+    }
 
 }
