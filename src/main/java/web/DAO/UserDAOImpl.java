@@ -14,18 +14,19 @@ import java.util.List;
 
 @Repository
 public class UserDAOImpl implements UserDAO {
-
+    private static int count;
     @PersistenceContext
     private EntityManager entityManager;
 
     @Override
     public void addUser(User user) {
+        //user.setId(++count);
         entityManager.persist(user);
     }
 
     @Override
     public void updateUser(int id, User user) {
-        User userNew =  entityManager.getReference(User.class, id);
+        User userNew = entityManager.getReference(User.class, id);
         userNew.setName(user.getName());
         userNew.setEmail(user.getEmail());
         userNew.setSalary(user.getSalary());
@@ -47,12 +48,4 @@ public class UserDAOImpl implements UserDAO {
         return entityManager.createQuery("SELECT user FROM User user", User.class).getResultList();
     }
 
-//    @Override
-//    public void createUsersTable() {
-//        entityManager.createNativeQuery("create table if not exists users " +
-//                "(id int primary key AUTO_INCREMENT, " +
-//                "name varchar(30), " +
-//                "email varchar(50), " +
-//                "salary int").executeUpdate();
-//    }
 }
